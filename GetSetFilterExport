@@ -1,3 +1,9 @@
-------get event mssql, set filter, sort and export to csv file-----------
+------ select some last event------------
+Get-EventLog -LogName application -after (Get-Date).AddDays(-7) | select TimeGenerated,Message -First 5
+
+--------get event mssql, set filter, sort and export to csv file-----------
 Get-EventLog -LogName application -Source MSSQLSERVER -after (Get-Date).AddDays(-7) | where Category -EQ 'logon'| Sort TimeGenerated -Descending | select -Last 5 
 | Export-Csv .\$(Get-date -Format 'yyMMddHHmmss')_MSSQL_Events.csv
+
+------ select name and count --------
+Get-EventLog -LogName application -Source MSSQLSERVER -after (Get-Date).AddDays(-7) | group Category| select name, count
