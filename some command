@@ -7,7 +7,7 @@ C:\Users\Administrator>robocopy F:\ E:\ /E /COPYALL /SEC /XD "F:\System Volume I
   Started : Thursday, August 22, 2024 9:05:26 AM
    Source : F:\
      Dest : E:\
-
+    Permission: Full
     Files : *.*
 
  Exc Dirs : F:\System Volume Information
