@@ -1,0 +1,2 @@
+---- copy all file from F: to E: with full permission and exclude F:\System Volume Information"---
+robocopy F:\ E:\ /E /COPYALL /SEC /XD "F:\System Volume Information"
