@@ -1,1 +1,49 @@
-Enable-PSRemoting -Force
+#### Cho phép chạy script từ bên ngoài
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
+
+#### Mở firewall cho port 5986
+netsh advfirewall firewall add rule name="WinRM HTTPS" dir=in localport=5986 protocol=TCP action=allow
+
+#### Tải và chạy script cấu hình của Ansible
+$url = "https://raw.githubusercontent.com/ansible/ansible-documentation/ae8772176a5c645655c91328e93196bcf741732d/examples/scripts/ConfigureRemotingForAnsible.ps1"
+$file = "$env:temp\ConfigureRemotingForAnsible.ps1"
+(New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
+powershell.exe -ExecutionPolicy ByPass -File $file
+
+
+#### Tải và chạy script cấu hình của Ansible
+# bật service
+winrm quickconfig -q
+
+# Cho phép kết nối không mã hóa (chỉ dùng trong lab/test, không nên dùng production):
+# winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+
+# Cho phép Basic Authentication (dùng với HTTPS):
+winrm set winrm/config/service/auth '@{Basic="true"}'
+$cert = New-SelfSignedCertificate -DnsName (hostname) -CertStoreLocation Cert:\LocalMachine\My
+$hostname = hostname
+$thumbprint = $cert.Thumbprint
+winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$hostname`"; CertificateThumbprint=`"$thumbprint`"}"
+
+#### Kiểm tra listener
+winrm enumerate winrm/config/listener
+
+#### Khai báo var 
+# ./ansible-project/inventory/hosts.ini
+[windows:vars]
+ansible_connection=winrm
+ansible_port=5986
+ansible_winrm_transport=ntlm
+ansible_winrm_server_cert_validation=ignore
+
+# ./ansible-project/group_vars/windows/vars.yml
+ansible_user={{ vault_ansible_user }}
+ansible_password={{ vault_ansible_password }}
+
+# ~/.vault_pass
+StrongP@$$w0rd
+
+# tạo encrypted password file (vault.yml)
+ansible-vault encrypt ./ansible-project/group_vars/windows/vault.yml   --vault-password-file ~/.vault_pass
+
+
