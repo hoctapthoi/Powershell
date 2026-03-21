@@ -28,26 +28,3 @@ winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$host
 #### Kiểm tra listener
 winrm enumerate winrm/config/listener
 
-#### Khai báo var 
-# khai báo hosts.ini (./ansible-project/inventory/hosts.ini) 
-[windows:vars]
-ansible_connection=winrm
-ansible_port=5986
-ansible_winrm_transport=ntlm
-ansible_winrm_server_cert_validation=ignore
-
-#  khai báo var (./ansible-project/group_vars/windows/vars.yml) 
-ansible_user: "{{ vault_ansible_user }}"
-ansible_password: "{{ vault_ansible_password }}"
-
-# khai báo vault password file (~/.vault_pass)
-StrongP@$$w0rd
-
-# khai báo vault.yml (./ansible-project/group_vars/windows/vault.yml) với dạng plain-text:
-vault_ansible_user: "Administrator"
-vault_ansible_password: "WindowsPassword123"
-
-# tạo convert vault.yml từ plain-text sang encrypted
-ansible-vault encrypt ./ansible-project/group_vars/windows/vault.yml   --vault-password-file ~/.vault_pass
-
-
